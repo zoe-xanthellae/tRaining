@@ -1,0 +1,663 @@
+---
+title: "tRaining Day 1"
+author: "ZS"
+date: "June 8, 2018"
+output: word_document
+editor_options: 
+  chunk_output_type: console
+---
+```{r setup}
+rm(list=ls())
+```
+
+
+### Back to Basics
+To run the example of a fucntion from a given package, use example(function_name)
+
+ - To run an entire script, shift+ctrl+enter
+ - Running everything before your line, ctrl+alt+P (in RMarkdown, it will run the previous chunk)
+
+```{r Basics}
+# Starting Code----
+example(mean)
+rm(x)
+ls()
+
+# Getting Help----
+# Get inforamtion about the function
+mean
+
+# Say you wan thelp with an arithmetic operator, cannot use ?function to get help
+help("+") # Will pull up the page for Arithmetic functions
+
+# Environment----
+# use ls() to see what's in your environment
+ls()
+rm(list=ls()) # clears everything from your environment, should be used often when running a script so you're not working with old objects
+ls()
+
+#' Will allow you to carry the first line - Markdown equivalent?
+```
+
+### Data Structures
+
+Think about *mode* and *class*
+
+ - *Vector*: could be a list of things (1 dimension), all of which belong to *one* mode (e.g. true/false, letters, numbers)
+ - *Factor*: 1 dimensional holds categorical values (e.g. colors, treatments)
+ - *Matrix*: 2 dimensional, but all things are of 1 mode (all numbers, letters, etc)
+ - *Array*: can be multidimensional, but all things are all still same mode
+ - *List*: 1 dimension, but each thing in the list can be different modes
+ - *Data.Frame*: 2  dimensional, each column is an element, but they can be different modes
+    - BUT must have equal row/column lengths to have the df
+    - Think of it as a list, transposed (where list lenghts are the same)
+    
+#### Vectors
+
+Think of things in terms of "elements", each thing in an object
+
+```{r Creating Vectors}
+# Creating a vector
+x <- 66:12
+str(x) # Returns int [1:55] since there are 55 elements
+class(x) # Double precision factor
+mode(x) # Returns "numeric"
+
+# Using the "c" function
+x <- c(4, 132, 48) # Creating a number vector
+X <- c( "word", "lizard", "beaker") # Creating a character vector,  length of 3
+x <- c("a sentence is a character", "this is a single, element") # length of 2
+
+```
+
+#### Indexing
+
+Three ways to index data: numeric, character, or logical
+
+```{r Indexing Examples}
+# Numeric Indexing----
+# What goes between the [] is always a vector
+
+# Create an object, x, with integers from 21 to 30
+x <- 21:30
+
+x[5] # Returns the 5th element
+
+# Can use vector to index within an object
+y <- 5
+x[y] # Will also return 25
+
+# R will index in the order you ask for information
+x[c(2, 4, 7, 1)]
+
+# If you don't know how many elements are in your vector
+length(x) # Tells you the length of your vector
+x[length(x)] # Allows you to index the last value without knowing how long the vector is
+
+# Can assign the output of a function to an object
+l.x <- length(x)
+x[l.x] # show the last element of the vector
+
+# Show first and last elements
+i <- c(1, l.x)
+x[i]
+
+# Assign 1st and last elements to y
+y <- x[i]
+
+x <- 55:100
+x # Does the same as print(x)
+
+# Remove 18th element (72)
+x[-18] # returns the vector without that value
+x[c(-1, -18, -35)] # returns the vector without those three values
+x[-c(1, 18, 35)] # does the same thing as line above
+x[-(1:5)] # returns vector elements wihtout first 5 elements
+
+# These two functions do the same thing
+x <- x[-(1:5)] # Creates x by deleting the first 5
+x <- x[6:length(x)] # Creates x by only taking 6th element to end
+
+# Assign to an element
+x[15] <- 15 # Change the 15th element to the integer 15
+x[1:5] <- 5 # Change elements 1-5 to the number 5
+
+# Character Indexing----
+# Indexing by names only works if your vector has names (column names or as below)
+z <- c("a", "b", "c", "d")
+str(z)
+letters # An object available by R
+
+# Make a vector
+x <- 1:10
+names(x) # Now, would print "NULL" since there are no names assigned yet
+
+# Assign names
+names(x) <- letters[1:10]
+str(x)
+
+# Can use the names of values to get the values
+x["f"] # Where "f" is a vector with length 1
+x["i"] <- 100 # Looks for element named "i" and changes the element value to 100
+
+z <- c("e", "i", "a") # Create a character vector
+x[z] # Returns the values from the character vector
+
+# Can only use character vectors to return those elements you want, not take them away
+x[-"a"] # Will not work
+
+names(x)[c(3:5)] <- c("sarah", "mike", "john") # Change names for element x
+names(x)
+
+# Logical Indexing----
+# Result of a logical opration is a vector
+
+# Can ask logical across entire vector
+x > 3
+
+# Index using a logical
+x[x > 3] # Returns elements that are TRUE
+x[x > 3 & x < 250] # same as 250 > x > 3
+                    # Logical vector made up of two logical vectors, both of which must be true to return
+x[x > 3 | x < 250] # same as return any thing x >3 OR x < 250
+
+# Any and All in a logical vector
+any(x) # Are any true for the condition
+all(x) # Are all true
+x[x] # Returns values that are true
+```
+
+#### Factors
+
+```{r}
+# Factors take characters, find uniue values, represent as numbers
+# Easier to store as numbers, and rep the factor levels as numbers, using those as a sort of "lookup table"
+# Levels are sorted Alphabetically and assigned numbers in order
+
+x <- factor(c("yellow", "green", "blue", "red", "Blue", "yellow"))
+x
+str(x) # Factor with 5 levels
+mode(x) # Numeric
+class(x) # Factor
+
+is.numeric(x) # Returns false, not a number, but is stored as one for reference
+is.character(x) # Returns false
+
+as.numeric(x) # To return numbers that it's assigned level factors
+as.character(x)
+
+x <- factor(c("yellow", "green", "blue", "red", "Blue", "yellow"),
+            levels = c("yellow", "Blue", "red", "blue")) # you control the order of assignment to levels
+```
+
+#### Matrices
+
+*Always* 2 dimensional things with rows and columns
+
+```{r}
+# Initialize with vector----
+x <- letters[1:24]
+mat <- matrix(x, nrow = 4)
+mat # We've created a character matrix
+length(mat) # How many elements are in mat
+nrow(mat)
+ncol(mat)
+
+# Indexing in Matrix----
+# mat[row, column]
+mat[2, 1:5] # Drops the dimension and returns a character vector
+mat[2, 1:5, drop = FALSE] # Maintains the dimensions and returns a one-row matrix
+
+# Want first two clumns, but not 3 to 5, can mix positive and negative between slots, but not within
+mat[1:2, -c(3, 5)]
+
+# Make column 5 all x's
+mat[,3] <- "x"
+mat
+
+# Assign row and column names
+rownames(mat) <- LETTERS[26:23]
+colnames(mat) <- LETTERS[1:6]
+mat
+str(mat)
+
+# Now you can refer to rows and columns by names, rather than numbers
+mat["Z", 1:5] # Can mix between using names
+
+mat[c("Z","Y"),c("E","F")]
+
+# Logical Indexing----
+x <- 1:24
+n.mat <- matrix(x, nrow = 6)
+n.mat
+# Choose all values that meet a condition, want all rows where column
+i <- n.mat[,1] < 4
+n.mat[i,] # Only returns rows where values in  column are less than 4
+
+# Want columns where value across rows is greater than 15
+c3gt15 <- 
+  
+# Index Rows
+# rows wehre column two is less than 11 and greater than 9
+  
+cond <- n.mat[,2] > 9 & n.mat[,2] < 11 # Could use >, >=, or | too 
+n.mat[cond,]
+
+# Indexing Columns : can be done, but a lot less common
+# Putting condition in [row,] you're trying to select rows
+# Putting condition in [,column] you're trying to select columns
+
+x <- letters[1:24]
+mat <- matrix(x, nrow = 4)
+mat
+
+# Can use conditions from indexing on one matrix to index another, so long as 
+# the lengths are the same length
+mat
+z <- c(15, 205, 3, 6, 1, -5)
+z
+mat[, z < 10] # Can only be accomplished bc the condition in [,column] is logical
+z < 10 # This logical vector means that the last 4
+
+# Adding rows or columns (default is to the end)
+cbind(mat, c("Z", "Z", "A","A"))
+rbind(n.mat, 101:104)
+
+# Insert a row somewhere that's not at the end
+rbind(n.mat[1:3,], c(5, 5, 5, 5), n.mat[4:6,])
+
+# Matrices as square things where everything is the same (all #s)
+```
+
+#### Lists
+
+Keeping things that are in different modes together in one place
+Lists are essentially vectors, where elements are of different modes
+
+```{r Lists}
+
+x <- list(1, letters[5:10], matrix(1:24, nrow = 4))
+x
+
+# Removing something from a list, use [[]] to get the value or $ if it list elements have names
+# [] will return the element of the list
+y <- x[[3]]
+y
+
+x[[3]][3:4,] # First part is the matrix, 2nd part is indexing that matrix
+
+# Adding Names to elements in a list
+names(x) <- c("first", "second", "third")
+x
+
+x$second
+
+# Can create list and assign names simultaneously
+z <- list(num = 1, lets = letters[5:10], mat = matrix(1:24, nrow = 4))
+
+# Can edit things in the lsit
+z$mat[3, 1] <- 100
+z$mat
+
+# Can delete things
+z$lets <- NULL
+z
+
+# Can add things
+z$new.element <- TRUE
+z
+
+# List of lists
+z$new.list <- list(chuck = "chuck", sally = matrix(1:10, nrow = 2))
+
+example(lm) # Navigating through a list to get to what you want
+names(lm.D9)
+lm.D9$coefficients
+lm.D9$coefficients["(Intercept)"] # Look in lm.D9 for "intercept" value within coefficients
+```
+
+#### Dataframes
+
+```{r DFs}
+rm(list = ls())
+
+# Create four vectors
+ids <- c(23, 345, 234, 565)
+loc <- c("north", "north", "south", "west")
+len <- c(9.9, 3.4, 4.6, 8.9)
+wght <- c(234, 345, 122, 233)
+
+df <- data.frame(ids = ids, loc = loc, len = len, wght = wght)
+str(df)
+df
+nrow(df)
+df[1] # Single brackets return a data frame
+df[[1]] # Double brackest return elements of column 1
+df$ids # Returns the same information as above
+
+# Exxtract first column - done 4 ways
+df[[1]]
+df[, 1]
+df$ids
+df[["ids"]]
+
+# Call out row 1 - two ways
+df[1,] # calls first row
+df["1",] # calls row called "1"
+
+# Change row names
+rownames(df) <- c("hal", "sue", "max", "jim")
+df
+df["hal",]
+
+# **YOu can mix and match**
+df[c(2, 4), c("len", "wght")]
+
+# Rows where length is >3
+cond <- df$len > 3 # This is your logical vector
+df[cond,] # Returns the rows where the answer to the logical vector is true
+
+# 3 > weight >100
+df[df$len >3 & df$wght >100, ]
+
+
+```
+
+```{r R's Datasets}
+?datasets
+library(help = "datasets") # ALL THE DATASETS IN R, listed
+
+head(iris) # Shows variable names, and first 6 objets
+tail(iris) # Shows last 6 objects
+summary(iris) # Summary data
+
+iris[iris$Sepal.Length < 4.8, ]
+iris$Sepal.Length < 4.8 # The logical vector that's being run
+
+# Extract just the "setosa" species
+iris.s <- iris[iris$Species == "setosa", ]
+head(iris.s)
+
+# Extract based on product of two columns, petal area = length x width
+petal.area <- iris$Petal.Length * iris$Petal.Width
+petal.area # not physically connected to iris df, has same number of values as two columns that went into it
+iris[petal.area > 14, ]
+
+# SUBSET function takes the df and allows you to write a condition
+subset(iris, Species == "virginica" | Species == "setosa")
+subset(iris, Species == "virginica" | Species == "setosa", c("Sepal.Length", "Species")) # using the 3rd argument to read back certain columns
+
+```
+
+#### Coercion
+
+```{r}
+chr <- as.character(1:5) # a vector of characters
+num <- as.numeric(chr) + 10
+
+chr <- c(1:5, "hello") # makes a character vector
+as.numeric(chr) # Will print results, but present warming that there were NAs introduced by coercion
+
+as.logical(c("TRUE", "true", "T", "True", "hello")) # as long as the whole word is there, it will convert, but not with "hello"
+
+# R will convert numbers to logicals
+as.logical(-5:5) # Any number that is NOT 0, whether positive or negative, is TRUE
+as.numeric(as.logical(-5:5)) # Converts trues to 1, and falses to 0
+
+str(iris)
+# How many values of Sepal.Length are > 5
+slgt5 <- iris[iris$Sepal.Length >5,]
+str(slgt5)
+nrow(slgt5) # gives you the count of rows the meet the conditions
+
+sum(iris$Sepal.Length >5) # Where the (thing inside the paren) is a logical vector, and TRUEs are converted into 1, then sum() takes the total of those 1s
+
+mean(iris$Sepal.Length >5) # Proportion of items that meet the condition
+```
+
+#### Missing Data
+
+Cannot test for NA using the "=" argument
+
+```{r}
+z <- c(1, NA, 3, NA, 5, 7, NA)
+is.na(z)
+z[!is.na(z)] # Shows values that are not NA
+!is.na(z) # Shows logical results for your vector
+
+na.omit(z)
+
+z1 <- z[!is.na(z)]
+
+# Attributes are like metadata that you can attacth to objects that will stay with them even if you modify the object itself
+
+iris.na <- iris
+iris.na[1, "Sepal.Length"] <- NA
+iris.na[8, "Petal.Length"] <- NA
+
+# Want all rows where there is no missing data
+# Complete cases----
+# looks across row, returns TRUE if all columns contain values (no NAs)
+iris.comp <- iris.na[complete.cases(iris.na), ]
+head(iris.comp) # Deleted rows that contained one or more NAs
+
+# Complete cases works only on the data frame you give it, so be sure to give it the data frame you care about, esp if you need to subset columns/rows first
+iris.comp <- iris.na[complete.cases(iris.na[, c(1,2,4)]), ]
+head(iris.comp)
+```
+
+#### Directories/Files
+
+```{r}
+getwd() # Tells you where your working directory is
+dir()
+dir("..") # Takes you one folder level up from your current directory
+set("..") # Sets it one step up
+
+# Writing Files---
+
+# Functions for writing an object and reading it are paired and similar
+
+# WOrkspace objects----------------- 
+# (save and load)
+save.image() # Makes an R data file that saves your workspace (data, objects) into your working directory
+rm(list = ls()) # clear the workspace
+load(".Rdata")
+
+# To be specific about what you're saving
+save(chr, iris.na, z, file = "stuff.rdata")
+rm(list = ls())
+load("stuff.rdata")
+stuff <- load("stuff.rdata") 
+stuff # a way to check what stuff it saved to the .rdata image
+
+# CSV files or TabDelimited Values------------------ 
+# (read.table and write.table/write.csv)
+str(iris)
+write.csv(iris, file = "iris.csv") # creates a comma-delimited file, with a rowname column by default
+write.csv(iris, file = "iris.csv", row.names = F) # writes without column of row names
+
+iris.2 <- read.csv("iris.csv") # must assign to an object to be able to manipulate it as a dataframe
+
+# R will try to guess that things that are character values as factors, even if they aren't
+iris.3 <- read.csv("iris.csv", stringsAsFactors = F)
+str(iris.3)
+
+# R codes/commands--------------
+# dump and source
+# dump creates a text file that contains the commands to create the objects
+
+X <- 1:10
+dump("X", file = "X.r")
+rm(X)
+source("x.r") # Goes to the command in X.r and run the command to create the object
+
+```
+
+1. Compute the following values:
+• 27 times 38 minus 17
+• natural logarithm of (56 divided by 4)
+• square root of (4 times 13)
+• 6 squared divided by 2
+```{r 1}
+27 * 38 - 17
+
+log(56/4)
+
+sqrt(4 * 13)
+
+(6^2)/2
+```
+
+2. Create two vectors:
+
+```{r 2}
+# • 160, decreasing sequential integers by 10, 20, 15, 10, 5
+x <- c(160, seq(150, 20, -10), 15, 10, 5)
+x # building a vector by inserting functions that create other vectors
+
+# could also do:
+x <- c(160, seq(150, 20, -10), seq(15, 5, -5))
+x
+
+# • 57, 58, 59, sequential integers by 2, 85, 86
+y <- c(57, 58, 59, seq(60, 84, 2), 85, 86)
+y
+# could also do:
+y <- c(57:59, seq(60, 84, 2), 85:86)
+y
+
+# (If you can’t create these two vectors, then create one vector from 20 to 35 
+# and another from 205
+# to 190)
+
+
+```
+
+3. Multiply the two vectors above and assign to a new vector.
+```{r}
+z <- x * y
+```
+
+4. What are the 3rd, 10th, and 13th elements of the vector from 3?
+```{r}
+z[c(3, 10, 13)]
+```
+
+5. How many elements of the vector in 3 are greater than 6000?
+```{r}
+gt6k <- z[z>6000] # logical vetor that runs on all 18 elements from z
+length(gt6k)
+
+# Or, can use coersion
+as.numeric(z > 6000)
+sum(z > 6000)
+
+# To print those values that are true for the logical z > 6000
+as.numeric(gt6k)
+```
+
+6. What is the mean, median, and sum of the vector in 3?
+```{r}
+mean(z)
+median(z)
+sum(z)
+
+# Can place them all in a summary vector, and give each object names as info
+smry <- c(
+  mean = mean(z),
+  median = median(z),
+  sum = sum(z)
+)
+smry
+```
+
+7. Change the 4th and 8th elements of the vector in 3 to 4 and 8.
+```{r}
+z[4] <- 4 # 4th element is 4
+z[8] <- 8
+
+# can accomplish in one step
+z[c(4, 8)] <- c(4, 8)
+z
+
+# can also run it from a vector
+new.vals <- c(4,8)
+z[new.vals] <- new.vals
+```
+
+8. Using the USArrests data.frame, extract a vector of the percent of the population living in urban areas
+(UrbanPop). Create names for this vector from the states in the row names of the data.frame.
+```{r}
+USArrests <- datasets::USArrests
+urbanPop <- USArrests$UrbanPop # WILL NOT WORK IN MATRIX
+urbanPop <- USArrests[,3]
+urbanPop <- USArrests[, "UrbanPop"]
+urbanPop <- USArrests[, c(F, F, T, F)]
+urbanPop <- USArrests[["UrbanPop"]] # WILL NOT WORK IN MATRIX
+urbanPop <- USArrests[[3]]
+
+# Know the object you're working with, double brackets and $column name will not work with extracting
+# use str(df) to determine if it's a df or a matrix
+
+# Create names for this vector from the states in the row names of the df
+row.names(USArrests)
+colnames(USArrests)
+names(urbanPop) <- rownames(USArrests) # Give the vector names and use that to extract the information for number 9
+head(urbanPop)
+```
+
+9. What is the percentage of the population in urban areas for Kansas, California, and Kentucky?
+```{r}
+urbanPop[row.names(USArrests) == "Kansas" | row.names(USArrests) == "California" | row.names(USArrests) == "Kentucky"]
+```
+
+10. What is the average urban population percentage in New England (Maine, Vermont, New Hampshire,
+Massachusetts, Rhode Island, and Connecticut)?
+```{r}
+names(urbanPop) <- rownames(USArrests)
+neweng <- urbanPop[c("Maine", "Vermont", "New Hampshire", "Massachusetts", "Rhode Island", "Connecticut")]
+mean(neweng)
+```
+
+11. What is the average murder/assault ratio in the entire USArrests data.frame?
+```{r}
+m.a.ratio <- USArrests$Murder / USArrests$Assault
+mean(m.a.ratio)
+```
+
+12. Create a copy of the USArrests data.frame and add a column for the murder/assault ratio.
+```{r}
+USArrests$m.a.ratio <- USArrests$Murder / USArrests$Assault
+mean(USArrests$m.a.ratio)
+```
+
+13. Write a .csv file of this modified data.frame.
+```{r}
+write.csv(USArrests, "USArrests.copy.csv") # assigns row names (states) to first column
+
+# If you don't want row names
+write.csv(USArrests, "USArrests.copy.1.csv", row.names = F)
+
+# IF you want the row names and want to name that first column (default is no name)
+USArrests$states <- row.names(USArrests)
+write.csv(USArrests, "USArrests.copy.2.csv", row.names = F)
+```
+
+14. Read the .csv file from 13 to a new data.frame.
+```{r}
+csv.df <- read.csv("USArrests.copy.2.csv")
+```
+
+15. Extract rows from the data.frame read in 14 that have a murder/assault ratio less than the mean.
+```{r}
+mean.ma <- mean(csv.df$m.a.ratio)
+lt.mean <- csv.df$m.a.ratio < mean.ma # Creates a logical vector of true false
+lt.mean.df <- csv.df[lt.mean, ] #extracts the rows that are TRUE
+lt.mean.df
+
+# or, DO IT ALL IN ONE LINE!
+lt.mean.df <- csv.df[csv.df$m.a.ratio < mean(csv.df$m.a.ratio), ]
+lt.mean.df
+```
+
