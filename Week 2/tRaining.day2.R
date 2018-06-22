@@ -574,6 +574,7 @@ sapply(iris, function(x){
 # Homework----
 # Answer all questions in a script (.R) file. Use comments (# or #') to explain steps in code.
 
+
 #   __1. ----
 # In the “tblCodeSpecies.csv” data set, how many named species of the family “Balaenopteridae” are
 #   there?
@@ -935,6 +936,7 @@ taxa.level
 # while: while the code in the while(here) is true it will continue running, once it's 
   # false, it will stop running
 
+
 #     3. In the “ctd.csv” data set, what is the mean difference in temperature between 10 meters and the surface?
 
 
@@ -968,4 +970,9 @@ taxa.level
 #   station, sample date, and value of that measurement for every outlier identified.
 
 
+<<<<<<< HEAD
 #   10. Write a function that uses the function in 9 to identify outliers for every depth and measurement.
+=======
+#   10. Write a function that uses the function in 9 to identify outliers for every depth and measurement.
+
+>>>>>>> eabd195f575eaa3869532cef2e29a14f35e7fa97
