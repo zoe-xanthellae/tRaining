@@ -571,23 +571,62 @@ sapply(iris, function(x){
   }
 })
 
-# Homework
+# Homework----
 # Answer all questions in a script (.R) file. Use comments (# or #') to explain steps in code.
+
 #   1. In the “tblCodeSpecies.csv” data set, how many named species of the family “Balaenopteridae” are
 #   there?
+
+library(readr)
+spp <- read_csv("Week 2/tblCodeSpecies.csv") # read in the data first
+View(spp)
+colnames(spp) <- tolower(colnames(spp)) # make the column names lower case
+
+
+spp$family %in% "BALAENOPTERIDAE" # this is a logical that reads T/F for each entry in the line, but we want the number
+sum(spp$family %in% "BALAENOPTERIDAE") # returns 8, because one of the taxa doesn't have species
+
 #     2. In the “tblCodeSpecies.csv” data set, what is the mean number of species per family of Cetaceans
 #   (order Cetacea) and Pinnipeds (suborder Pinnipedia)?
+
+subspp <- subset(spp, spp$order %in% c("CETACEA", "PINNNIPEDIA"))
+subspp
+
+
+tapply(freq, subspp$order, mean)
+
 #     3. In the “ctd.csv” data set, what is the mean difference in temperature between 10 meters and the surface?
+
+
+
 #     4. In the “ctd.csv” data set, which stations have the lowest and highest mean surface temperature?
+
+
+
 #     5. Write a function that returns the following summary statistics for a numerical vector: mean, standard
 #   deviation, number of values, number missing, minimum, maximum, and median.
+
+
+
 #   6. Add to the function in 5 some code to make sure that the input is valid numerical vector.
+
+
+
 #   7. Write a function that uses the function in 6 to summarize the measurements from a data.frame like
 #   “ctd.csv”
+
+
+
 #   8. Write a function that uses the function in 6 to summarize the measurements from a CTD data.frame
 #   by station and depth.
+
+
+
 #   9. Write a function that uses the function in 8 to identify outliers (> 3 standard deviations from mean).
 #   The function should take as input a data.frame of CTD casts like “ctd.csv”, a depth value of interest,
 #   and a measurement of interest. The output should be a three column data.frame that contains the
 #   station, sample date, and value of that measurement for every outlier identified.
+
+
 #   10. Write a function that uses the function in 9 to identify outliers for every depth and measurement.
+
