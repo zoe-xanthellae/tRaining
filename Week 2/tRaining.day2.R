@@ -571,23 +571,401 @@ sapply(iris, function(x){
   }
 })
 
-# Homework
+# Homework----
 # Answer all questions in a script (.R) file. Use comments (# or #') to explain steps in code.
-#   1. In the “tblCodeSpecies.csv” data set, how many named species of the family “Balaenopteridae” are
+
+#   __1. ----
+# In the “tblCodeSpecies.csv” data set, how many named species of the family “Balaenopteridae” are
 #   there?
-#     2. In the “tblCodeSpecies.csv” data set, what is the mean number of species per family of Cetaceans
+
+library(readr)
+spp <- read.csv("Week 2/tblCodeSpecies.csv", stringsAsFactors = F) # read in the data first
+colnames(spp) <- tolower(colnames(spp)) # make the column names lower case
+blp <- spp[spp$family == "BALAENOPTERIDAE", ] # extract all rows that are in family Balaenopteridae
+blp.spp <- blp$species # take just the column species from the blp dataset
+blp.spp <- c(NA, blp.spp) # makes the same thing as line before
+sum(blp.spp != "" & !is.na(blp.spp)) # take the sum of things that are not empty and not NA
+
+#  or
+
+sum(blp.spp != "", na.rm = T)
+
+# or
+
+spp$family %in% "BALAENOPTERIDAE" # this is a logical that reads T/F for each entry in 
+                                  # the line, but we want the number
+sum(spp$family %in% "BALAENOPTERIDAE") # returns 8, because one of the taxa doesn't have species
+
+#     __2.---- 
+# In the “tblCodeSpecies.csv” data set, what is the mean number of species per family of Cetaceans
 #   (order Cetacea) and Pinnipeds (suborder Pinnipedia)?
+
+# First, an extraction for cetaceans
+# run your code through one subset of the dataframe, then you can work to 
+cet <- spp[spp$order == "CETACEA", ]
+mean(table(cet$family)) # count of the number of entries per family, and take the mean
+#  OR
+
+fam.spp <- table(cet$family)
+mean(fam.spp)
+
+# get a list of all orders
+orders <- split(spp, spp$order) # turn spp into a list of df's, each is an order
+# each thing is a data frame, we want to get a rable of rows per family per order
+# use sapply and a function
+mean.fam <- function(df) {
+  fam.spp <- table(df$family)
+  mean(fam.spp)
+}
+# test the function on cet
+mean.fam(cet)
+
+# now, pass the function to sapply to run the function over the list
+sapply(orders, mean.fam)
+
+# can also write the function within the sapply
+sapply(split(spp, spp$order), function(df){ # split used to be making "orders"
+  mean(table(df$family)) # used to be the fam.spp from above
+})
+
+# same thing for suborder pinnipeds
+pin <- spp[spp$suborder == "PINNIPEDIA", ]
+fam.spp <- table(pin$family)
+mean(fam.spp)
+
+# build a function!
+# want to use this as an example
+cet <- spp[spp$order == "CETACEA"]
+
+# build the arguments
+df <- spp
+taxa.level <- "order"
+search.taxa <- "CETACEA"
+
+# next, where are lookig
+user.df <- df[ df[ , taxa.level] == search.taxa,]
+user.df <- df[ df[[taxa.level]] == search.taxa,] # same as above
+user.df
+# another way
+# be able to put in suborder for taxa.level and suborder is pinnipedia
+taxa.level <- 
+search.taxa <- taxa.level %in% "PINNIPEDIA"
+taxa.level <- spp[,x]
+
+meanSppPerFam <- function(df, taxa.level, search.taxa){
+  # extract data.frame for search.taxa in taxa.level column
+  user.df <- df[ df[[taxa.level]] == search.taxa,] # taken from above
+  # count number of rows per family
+  fam.spp <- table(user.df$family)
+  # return mean of number of rows
+  mean(fam.spp)
+}
+
+meanSppPerFam(spp, "order", "CETACEA")
+meanSppPerFam(spp, "suborder", "PINNIPEDIA")
+meanSppPerFam(spp, "order", "Carnivora") # this one has both lowercased, so we need to change the code
+
+# now, it doesn't matter the case that user uses for taxa.level or search taxa
+meanSppPerFam2 <- function(df, taxa.level, search.taxa){
+  # change case of column names
+  colnames(df) <- tolower(colnames(df))
+  # lower case of taxa level to match column names
+  taxa.level <- tolower(taxa.level)
+  
+  # lower case of contents of taxa.level vector
+  df.taxa.level <- tolower(df[[taxa.level]])
+  # lower case of search.taxa to match taxa.level vector
+  search.taxa <- tolower(search.taxa)
+  print(search.taxa)
+  
+  # extract data.frame for search.taxa in taxa.level column
+  user.df <- df[df.taxa.level == search.taxa, ] # taken from above
+  
+  # count number of rows per family
+  fam.spp <- table(user.df$family)
+  
+  # return mean of number of rows
+  mean(fam.spp)
+}
+
+meanSppPerFam2(spp, "ordeR", "CeTacea")
+
+# ___2. Errorchecks----
+# writing in error checks along the way in the function
+# IMPORTANT----
+# look at everything in function(here...), and think about it's *requirements*
+# now, it doesn't matter the case that user uses for taxa.level or search taxa
+meanSppPerFam3 <- function(df, taxa.level, search.taxa){
+  # df MUST be class = data frame
+  if(class(df) != "data.frame") { # do all the things in the curly brackets if not df
+    stop("'df' is not a dataframe")
+  } else { 
+    # change case of column names IF df is a dataframe, then pass next check
+    colnames(df) <- tolower(colnames(df))
+  }
+  
+  # separate the two arguments for taxa.level so you can be specific with informing user
+  # about errors
+  # taxa level MUST be class = character vector
+  if(class(taxa.level) != "character") { # do all the things in the curly brackets if not df
+    stop("'taxa.level' is not a character vector")
+  } 
+  
+  # taxa level MUST be length = 1 
+  if(length(taxa.level) != 1) { # do all the things in the curly brackets if not df
+    stop("'taxa.level' is not one element")
+  } else {
+    # lower case of taxa level to match column names
+    taxa.level <- tolower(taxa.level)
+    # is taxa.level a column name in the data frame (df)
+    if(!taxa.level %in% colnames(df)) {
+      warning("'taxa.level' is not in 'df")
+      return(NA)
+    }
+  }
+  
+  # if above checks pass, df.taxa.level will always work
+  # lower case of contents of taxa.level vector
+  df.taxa.level <- tolower(df[[taxa.level]])
+  
+  # separate the two arguments for search.taxa so you can be specific with informing user
+  # about errors
+  # search.taxa MUST be class = character vector
+  if(class(search.taxa) != "character") { # do all the things in the curly brackets if not df
+    warning("'search.taxa' is not a character vector")
+    return(NA)
+  } 
+  
+  # search taxa MUST be length = 1 
+  if(length(search.taxa) != 1) { # do all the things in the curly brackets if not df
+    warning("'search.taxa' is not one element")
+  } else {
+    # lower case of search.taxa to match taxa.level vector
+    search.taxa <- tolower(search.taxa)
+    print(search.taxa)
+    # is search.taxa a thing in the column that taxa level is referring to (df.taxa.level)
+    if(!search.taxa %in% df.taxa.level) {
+      warning("'search.taxa' is not in 'df.taxa.level")
+      return(NA)
+    }
+  }
+  
+  # extract data.frame for search.taxa in taxa.level column
+  user.df <- df[df.taxa.level == search.taxa, ] # taken from above
+  
+  # count number of rows per family
+  fam.spp <- table(user.df$family)
+  
+  # return mean of number of rows
+  mean(fam.spp)
+}
+
+# check your function
+meanSppPerFam3("spp", "1", "CeTacea")
+
+
+# WHERE WE'RE HEADED, want the user to have to work less, only provide what's needed
+meanSppPerFam(spp, search.taxa)
+# problem: several columns, looking for something across them -> try an sapply
+# Is "CETACEA" in any of the columns of x
+in.taxa <- sapply(spp, function(x){
+  "CETACEA" %in% x
+})
+in.taxa # a named logical vector
+names(in.taxa)[in.taxa] # return the order that is TRUE for the logical argument using indexing
+
+# now, let's put that into a function that we can supply with a df, and a search.taxa
+taxaLevel <- function(df, search.taxa){
+  #' df has to be a data.frame
+  #' search.taxa has to be a character vector
+  #' search.taxa has to be length of 1
+  #' search.taxa has to be in correct case
+  #' search.taxa has to exist in only one column (sometimes order and genus are same)
+  #' 
+  in.taxa <- sapply(df, function(x){ # in.taxa will always have the same # of columns as df
+    tolower(search.taxa) %in% tolower(x) # allows you to input search.taxa in lowercase
+  })
+  # check that search.taxa is in df
+  if(!any(in.taxa)) {# if there are not TRUE's in in.taxa
+    warning("'search.taxa' not found in 'df', NULL returned.")
+    return(NULL)
+}
+  # tell us if there is more than one taxa level that contains search.taxa
+  if(sum(in.taxa) > 1) warning("more than one taxa level found")
+  
+  # return the taxa levels
+  names(in.taxa)[in.taxa]
+}
+
+# check it
+taxaLevel(spp, "cetacea")
+
+# now, let's put taxaLevel into our previous function
+meanSppPerFam4 <- function(df, search.taxa){
+  # df MUST be class = data frame
+  if(class(df) != "data.frame") { # do all the things in the curly brackets if not df
+    stop("'df' is not a dataframe")
+  } else { 
+    # change case of column names IF df is a dataframe, then pass next check
+    colnames(df) <- tolower(colnames(df))
+  }
+  
+  # put in function from above, passing
+  # is search taxa in more than one column (taxal.level)
+  taxa.level <- taxaLevel(df, search.taxa)
+  if(is.null(taxa.level)) return(NULL)
+  if(length(taxa.level) > 1) {
+    warning("returning NULL")
+    return(NULL)
+  }
+  
+  # if above checks pass, df.taxa.level will always work
+  # lower case of contents of taxa.level vector
+  df.taxa.level <- tolower(df[[taxa.level]])
+  
+  # separate the two arguments for search.taxa so you can be specific with informing user
+  # about errors
+  # search.taxa MUST be class = character vector
+  if(class(search.taxa) != "character") { # do all the things in the curly brackets if not df
+    warning("'search.taxa' is not a character vector")
+    return(NA)
+  } 
+  
+  # search taxa MUST be length = 1 
+  if(length(search.taxa) != 1) { # do all the things in the curly brackets if not df
+    warning("'search.taxa' is not one element")
+  } else {
+    # lower case of search.taxa to match taxa.level vector
+    search.taxa <- tolower(search.taxa)
+    print(search.taxa)
+    # is search.taxa a thing in the column that taxa level is referring to (df.taxa.level)
+    if(!search.taxa %in% df.taxa.level) {
+      warning("'search.taxa' is not in 'df.taxa.level")
+      return(NA)
+    }
+  }
+  
+  # extract data.frame for search.taxa in taxa.level column
+  user.df <- df[df.taxa.level == search.taxa, ] # taken from above
+  
+  # count number of rows per family
+  fam.spp <- table(user.df$family)
+  
+  # return mean of number of rows
+  mean(fam.spp)
+}
+
+# check it
+meanSppPerFam4(spp, "cetacea")
+
+in.taxa # a named logical vector
+names(in.taxa)[in.taxa] # return the order that is TRUE for the logical argument using indexing
+
+# ___2: if/else----
+# if requires one thing for thelogical test, cannot run two things (will warn and run first)
+if("Mesoplodon" %in% spp$genus) print("Hello")
+if(c("eric", "Mesoplodon" %in% spp$genus)) print("Hello")
+
+# to run if statements on vector of logicals -> ifelse
+# Example: abbreviating species names that are longer than 6 characters long
+spp.len <- nchar(spp$species)
+len.gt6 <- spp.len > 6 # create a logical vector
+
+# abbreviate spp$species where spp.len > 6 to 3 characters long, AND
+# return those that are less than 6 as full length
+# this will not work, since spp.len has length greater than 1, only runs for 1st in spp.len
+if(spp.len > 6) {
+  substr(spp$species, 1, 3) # return characters 1 through 3
+} else {
+  spp$species
+}
+
+# have to use ifelse
+# ifelse(spp.len > 6, "true statement" or action, "false statement" or action)
+# abbreviate spp$species where spp.len > 6 to 3 characters long, AND
+# return those that are less than 6 as full length
+ifelse(spp.len > 6, substr(spp$species, 1, 3), spp$species)
+
+# could also use curly brackets to make multiple statements
+ifelse(
+  spp.len > 6,
+  {
+    x <- spp$species
+    y <- 1
+    z <- 3
+    substr(x, y, z)
+  },
+  spp$species # this is the "else" line
+)
+
+# ___2. for loop----
+# i has a value, it's the product of the last iteration of the loop
+rm(i)
+for( i in 1:10) {
+  print(i)
+  if(i > 6) break
+}
+
+# let's make the argument from spp.len
+rm(x)
+for(x in spp) { # each column goes into x
+  if("CETACEA" %in% x) break # is "cetacea" in the column
+}
+x # vector of the values in the order column
+
+rm(x)
+for(x in colnames(spp)) {
+  if("CETACEA" %in% spp[[x]]) break
+}
+x
+
+rm(x)
+taxa.level <- NA
+for(x in colnames(spp)) {
+  if("erif" %in% spp[[x]]) {
+    taxa.level <- x
+    break
+  }
+}
+x
+taxa.level
+
+# repeat and while are other options
+# repeat: keep doing this code, and stop at the break if it's defined
+# while: while the code in the while(here) is true it will continue running, once it's 
+  # false, it will stop running
+
 #     3. In the “ctd.csv” data set, what is the mean difference in temperature between 10 meters and the surface?
+
+
+
 #     4. In the “ctd.csv” data set, which stations have the lowest and highest mean surface temperature?
+
+
+
 #     5. Write a function that returns the following summary statistics for a numerical vector: mean, standard
 #   deviation, number of values, number missing, minimum, maximum, and median.
+
+
+
 #   6. Add to the function in 5 some code to make sure that the input is valid numerical vector.
+
+
+
 #   7. Write a function that uses the function in 6 to summarize the measurements from a data.frame like
 #   “ctd.csv”
+
+
+
 #   8. Write a function that uses the function in 6 to summarize the measurements from a CTD data.frame
 #   by station and depth.
+
+
+
 #   9. Write a function that uses the function in 8 to identify outliers (> 3 standard deviations from mean).
 #   The function should take as input a data.frame of CTD casts like “ctd.csv”, a depth value of interest,
 #   and a measurement of interest. The output should be a three column data.frame that contains the
 #   station, sample date, and value of that measurement for every outlier identified.
+
+
 #   10. Write a function that uses the function in 9 to identify outliers for every depth and measurement.
